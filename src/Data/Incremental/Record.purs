@@ -15,7 +15,7 @@ import Prelude
 import Data.Incremental (class Patch, Change, Jet, fromChange, patch, toChange)
 import Data.Newtype (class Newtype, unwrap, wrap)
 import Data.Symbol (class IsSymbol, SProxy(..))
-import Type.Row (class RowToList, Cons, Nil, RLProxy(..), kind RowList)
+import Type.RowList (class RowToList, Cons, Nil, RLProxy(..), RowList)
 import Record as Record
 import Prim.Row as Row
 
@@ -28,7 +28,7 @@ instance semigroupRecord
     => Semigroup (IRecord r) where
   append (IRecord x) (IRecord y) = IRecord (appendRL (RLProxy :: RLProxy rl) x y)
 
-class SemigroupRL (rl :: RowList) r | rl -> r where
+class SemigroupRL (rl :: RowList Type) r | rl -> r where
   appendRL :: RLProxy rl -> Record r -> Record r -> Record r
 
 instance semigroupRLNil :: SemigroupRL Nil () where
@@ -57,7 +57,7 @@ instance monoidRecord
     => Monoid (IRecord r) where
   mempty = IRecord (memptyRL (RLProxy :: RLProxy rl))
 
-class SemigroupRL rl r <= MonoidRL (rl :: RowList) r | rl -> r where
+class SemigroupRL rl r <= MonoidRL (rl :: RowList Type) r | rl -> r where
   memptyRL :: RLProxy rl -> Record r
 
 instance monoidRLNil :: MonoidRL Nil () where
@@ -84,7 +84,7 @@ instance patchRecord
     => Patch (IRecord r) (IRecord d) where
   patch (IRecord r) (IRecord d) = IRecord (patchRL (RLProxy :: RLProxy rl) (RLProxy :: RLProxy dl) r d)
 
-class MonoidRL dl d <= PatchRL r (rl :: RowList) d (dl :: RowList) | rl -> r, dl -> d, rl -> dl where
+class MonoidRL dl d <= PatchRL r (rl :: RowList Type) d (dl :: RowList Type) | rl -> r, dl -> d, rl -> dl where
   patchRL :: RLProxy rl -> RLProxy dl -> Record r -> Record d -> Record r
 
 instance patchRLNil :: PatchRL () Nil () Nil where
